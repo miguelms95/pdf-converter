@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to Image Converter</title>
+  <meta name="description" content="PDF to Image Converter">
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+<div id="app" class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">PDF to Image Converter</h1>
+
+    <!-- File Input -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Upload PDF</label>
+      <input type="file" accept="application/pdf" @change="handleFileUpload" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+    </div>
+
+    <!-- Page Selection -->
+    <div v-if="totalPages > 0" class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Select Page Range (1 - {{ totalPages }})</label>
+      <div class="flex space-x-2 mt-1">
+        <input v-model.number="startPage" type="number" min="1" :max="totalPages" placeholder="Start Page" class="w-1/2 p-2 border rounded text-sm">
+        <input v-model.number="endPage" type="number" min="1" :max="totalPages" placeholder="End Page" class="w-1/2 p-2 border rounded text-sm">
+      </div>
+    </div>
+
+    <!-- Format Selection -->
+    <div v-if="totalPages > 0" class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Output Format</label>
+      <select v-model="outputFormat" class="mt-1 block w-full p-2 border rounded text-sm">
+        <option value="png">PNG</option>
+        <option value="jpg">JPG</option>
+      </select>
+    </div>
+
+    <!-- Convert Button -->
+    <button v-if="totalPages > 0" @click="convertPages" :disabled="isConverting" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-gray-400">
+      {{ isConverting ? 'Converting...' : 'Convert and Download' }}
+    </button>
+
+    <!-- Error Message -->
+    <p v-if="error" class="mt-4 text-red-600 text-sm">{{ error }}</p>
+  </div>
+</div>
+
+<script>
+  const { createApp, ref } = Vue;
+
+  createApp({
+    setup() {
+      const pdfFile = ref(null);
+      const totalPages = ref(0);
+      const startPage = ref(1);
+      const endPage = ref(1);
+      const outputFormat = ref('png');
+      const isConverting = ref(false);
+      const error = ref('');
+
+      // Handle PDF file upload
+      const handleFileUpload = async (event) => {
+        error.value = '';
+        const file = event.target.files[0];
+        if (!file || file.type !== 'application/pdf') {
+          error.value = 'Please upload a valid PDF file.';
+          return;
+        }
+        pdfFile.value = file;
+        await loadPDF(file);
+      };
+
+      // Load PDF and get total pages
+      const loadPDF = async (file) => {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          totalPages.value = pdf.numPages;
+          startPage.value = 1;
+          endPage.value = 1;
+        } catch (err) {
+          error.value = 'Failed to load PDF. Please try again.';
+          console.error(err);
+        }
+      };
+
+      // Convert selected pages to images
+      const convertPages = async () => {
+        if (!pdfFile.value) {
+          error.value = 'No PDF uploaded.';
+          return;
+        }
+
+        if (startPage.value < 1 || endPage.value > totalPages.value || startPage.value > endPage.value) {
+          error.value = 'Invalid page range.';
+          return;
+        }
+
+        isConverting.value = true;
+        error.value = '';
+
+        try {
+          const arrayBuffer = await pdfFile.value.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+          for (let pageNum = startPage.value; pageNum <= endPage.value; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 2.0 }); // Higher scale for better quality
+
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const context = canvas.getContext('2d');
+
+            await page.render({ canvasContext: context, viewport }).promise;
+
+            const mimeType = outputFormat.value === 'png' ? 'image/png' : 'image/jpeg';
+            const imgData = canvas.toDataURL(mimeType, outputFormat.value === 'jpg' ? 0.9 : 1.0);
+
+            // Trigger download
+            const link = document.createElement('a');
+            link.href = imgData;
+            link.download = `page_${pageNum}.${outputFormat.value}`;
+            link.click();
+          }
+        } catch (err) {
+          error.value = 'Failed to convert PDF. Please try again.';
+          console.error(err);
+        } finally {
+          isConverting.value = false;
+        }
+      };
+
+      return {
+        handleFileUpload,
+        totalPages,
+        startPage,
+        endPage,
+        outputFormat,
+        convertPages,
+        isConverting,
+        error,
+      };
+    },
+  }).mount('#app');
+</script>
+</body>
+</html>
