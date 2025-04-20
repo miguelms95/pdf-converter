@@ -14,4 +14,3 @@ jobs:
       sftp_host: ${{ secrets.SFTP_HOST }}
       sftp_user: ${{ secrets.SFTP_USER }}
       sftp_pass: ${{ secrets.SFTP_PASS }}
-      port: ${{ secrets.SFTP_PORT || 22 }}
