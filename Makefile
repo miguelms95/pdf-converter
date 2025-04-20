@@ -1,3 +1,7 @@
 
+
+install:
+	npm i
+
 run:
-	open index.html
+	npm run dev
