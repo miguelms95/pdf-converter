@@ -6,11 +6,17 @@ on:
 
 jobs:
   deploy-to-sftp:
-    uses: appleboy/scp-action@v0.1.7
-    with:
-      host: ${{ secrets.sftp_host }}
-      username: ${{ secrets.sftp_user }}
-      password: ${{ secrets.sftp_pass }}
-      port: 22
-      source: "index.html"
-      target: "pdf-converter"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to SFTP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          key: ${{ secrets.SFTP_PRIVATE_KEY }} # Use SSH key instead of password
+          port: ${{ secrets.SFTP_PORT || 22 }}
+          source: "./dist/*" # Adjust to your source files
+          target: "/path/to/pdf-converter" # Ensure this path exists
