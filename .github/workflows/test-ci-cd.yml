@@ -1,0 +1,16 @@
+name: Deploy via SFTP 🚀
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-to-sftp:
+    uses: appleboy/scp-action@v0.1.7
+    with:
+      host: ${{ secrets.sftp_host }}
+      username: ${{ secrets.sftp_user }}
+      password: ${{ secrets.sftp_pass }}
+      port: 22
+      source: "index.html"
+      target: "pdf-converter"
