@@ -16,7 +16,7 @@ jobs:
         with:
           host: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
-          key: ${{ secrets.SFTP_PRIVATE_KEY }} # Use SSH key instead of password
+          password: ${{ secrets.SFTP_PASS }}
           port: ${{ secrets.SFTP_PORT || 22 }}
-          source: "./dist/*" # Adjust to your source files
-          target: "/path/to/pdf-converter" # Ensure this path exists
+          source: "index.html" # Adjust to your source files
+          target: "pdf-converter" # Ensure this path exists
