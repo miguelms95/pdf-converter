@@ -26,12 +26,19 @@
         </p>
       </div>
     </Transition>
+    <p v-if="fileName" class="mt-2 text-sm text-gray-700 bg-gray-100 p-2 rounded">
+      File: <span class="font-semibold">{{ fileName }}</span>
+    </p>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { defineEmits } from 'vue';
+import { defineEmits, defineProps } from 'vue';
+
+const props = defineProps({
+  fileName: String,
+});
 
 const emit = defineEmits(['file-uploaded']);
 const isDragging = ref(false);

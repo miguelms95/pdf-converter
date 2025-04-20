@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-      <h1 class="text-2xl font-bold mb-4 text-center">PDF to Image Converter</h1>
-      <FileUploader @file-uploaded="handleFileUpload" />
+      <h1 class="text-2xl font-bold mb-4 text-center">📄 PDF to Image Converter</h1>
+      <FileUploader @file-uploaded="handleFileUpload" :file-name="fileName" />
       <PageSelector
           v-if="totalPages > 0"
           :total-pages="totalPages"
@@ -31,6 +31,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
 const pdfFile = ref(null);
+const fileName = ref('');
 const totalPages = ref(0);
 const startPage = ref(1);
 const endPage = ref(1);
@@ -43,9 +44,11 @@ const handleFileUpload = async (file) => {
   error.value = '';
   if (!file || file.type !== 'application/pdf') {
     error.value = 'Please upload a valid PDF file.';
+    fileName.value = '';
     return;
   }
   pdfFile.value = file;
+  fileName.value = file.name;
   await loadPDF(file);
 };
 
@@ -62,6 +65,7 @@ const loadPDF = async (file) => {
     }
   } catch (err) {
     error.value = 'Failed to load PDF. Please try again.';
+    fileName.value = '';
     console.error(err);
   }
 };
