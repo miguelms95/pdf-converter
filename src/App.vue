@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-gray-100 flex items-center justify-center flex-col p-4">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
       <h1 class="text-2xl font-bold mb-4 text-center">📄 PDF to Image Converter</h1>
       <FileUploader @file-uploaded="handleFileUpload" :file-name="fileName" />
@@ -17,6 +17,7 @@
       />
       <p v-if="error" class="mt-4 text-red-600 text-sm">{{ error }}</p>
     </div>
+    <p class="text-sm text-gray-400 p-4 mt-4">developed by <a class="hover:text-sky-600 transition-colors duration-300" href="https://miguelms.es" target="_blank">miguelms.es</a></p>
   </div>
 </template>
 

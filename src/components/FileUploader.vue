@@ -1,6 +1,6 @@
 <template>
   <div class="mb-4">
-    <label class="block text-sm font-medium text-gray-700 mb-2">Upload PDF</label>
+    <label class="block text-sm font-medium text-gray-700 mb-2 text-center">Convert your PDF pages to images</label>
     <Transition name="drag">
       <div
           class="relative border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300"
